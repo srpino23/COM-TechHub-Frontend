@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "COM-Stock-Frontend",
-    "slug": "COM-Stock-Frontend",
+    "name": "COM-TechHub-Frontend",
+    "slug": "COM-TechHub-Frontend",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
