@@ -155,7 +155,7 @@ const styles = StyleSheet.create({
     gap: 5,
   },
   infoText: {
-    color: "#fff",
+    color: "#b0b0b0",
     fontSize: 14,
   },
   line: {
