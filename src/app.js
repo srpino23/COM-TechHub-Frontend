@@ -4,6 +4,7 @@ import * as NavigationBar from 'expo-navigation-bar';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { View, StyleSheet } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import Main from "./screens/Main/Main";
 import SubScreen from "./screens/Details/Details";
@@ -13,10 +14,17 @@ import Login from "./screens/Login/Login";
 const Stack = createStackNavigator();
 
 export default function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
     NavigationBar.setVisibilityAsync('hidden');
+    const checkLoginStatus = async () => {
+      const userData = await AsyncStorage.getItem('user');
+      if (userData) {
+        setIsLoggedIn(true);
+      }
+    };
+    checkLoginStatus();
   }, []);
 
   const handleLogin = () => {
