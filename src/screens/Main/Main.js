@@ -4,7 +4,7 @@ import Router from "../../components/Router/Router";
 import NavigationBar from "../../components/NavigationBar/NavigationBar";
 import Header from "../../components/Header/Header";
 
-export default function App() {
+export default function Main() {
   const [screen, setScreen] = useState("Home");
 
   return (

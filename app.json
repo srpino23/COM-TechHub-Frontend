@@ -1,11 +1,12 @@
 {
   "expo": {
-    "name": "COM-TechHub-Frontend",
-    "slug": "COM-TechHub-Frontend",
+    "name": "TechHub",
+    "slug": "TechHub",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "jsEngine": "hermes",
+    "userInterfaceStyle": "dark",
     "newArchEnabled": true,
     "splash": {
       "image": "./assets/splash-icon.png",
@@ -19,10 +20,16 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.srpino23.TechHub"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "fa2d1866-7187-49f4-8d56-9a42bf226bca"
+      }
     }
   }
 }
