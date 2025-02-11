@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   Image,
   TextInput,
+  Button,
 } from "react-native";
 import SubHeader from "../../components/SubHeader/SubHeader";
 import { CameraView, CameraType, useCameraPermissions } from "expo-camera";

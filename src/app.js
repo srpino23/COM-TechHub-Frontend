@@ -14,7 +14,7 @@ import Login from "./screens/Login/Login";
 const Stack = createStackNavigator();
 
 export default function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(true);
 
   useEffect(() => {
     NavigationBar.setVisibilityAsync('hidden');
