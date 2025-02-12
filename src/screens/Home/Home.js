@@ -1,9 +1,15 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+} from "react-native";
 import { User, Clock } from "lucide-react-native";
 import { useState, useEffect } from "react";
 import { useNavigation } from "@react-navigation/native";
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
 
 export default function Home() {
   const navigation = useNavigation();
@@ -12,9 +18,13 @@ export default function Home() {
   useEffect(() => {
     const fetchReports = async () => {
       try {
-        const user = JSON.parse(await AsyncStorage.getItem('user'));
-        const response = await axios.get('http://172.25.67.77:2300/api/report/getReports');
-        const filteredReports = response.data.filter(report => report.team === user.team);
+        const user = JSON.parse(await AsyncStorage.getItem("user"));
+        const response = await axios.get(
+          "http://172.25.67.77:2300/api/report/getReports"
+        );
+        const filteredReports = response.data.filter(
+          (report) => report.team === user.team
+        );
         setRemitos(filteredReports);
       } catch (error) {
         console.error("Error fetching reports: ", error);
@@ -27,7 +37,7 @@ export default function Home() {
   return (
     <View style={styles.screen}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-        {remitos.map((remito) => (
+        {remitos.slice().reverse().map((remito) => (
           <TouchableOpacity
             key={remito._id}
             style={styles.card}
@@ -44,7 +54,16 @@ export default function Home() {
               </View>
               <View style={styles.info}>
                 <Clock color="#fff" size={24} />
-                <Text style={styles.infoText}>{new Date(remito.date).toLocaleString('es-ES', { timeZone: 'UTC', hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' })}</Text>
+                <Text style={styles.infoText}>
+                  {new Date(remito.date).toLocaleString("es-ES", {
+                    timeZone: "UTC",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                  })}
+                </Text>
               </View>
             </View>
             <View style={styles.line}></View>

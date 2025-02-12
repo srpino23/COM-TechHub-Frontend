@@ -1,7 +1,7 @@
 import React from "react";
 import { View, StyleSheet, TouchableOpacity } from "react-native";
 import { Archive, List, Settings, LogOut } from "lucide-react-native";
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation } from "@react-navigation/native";
 
 export default function Options({ handleLogout }) {
   const navigation = useNavigation();
@@ -9,14 +9,11 @@ export default function Options({ handleLogout }) {
   return (
     <View style={styles.screen}>
       <View style={styles.grid}>
-        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('ExampleInventory')}>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => navigation.navigate("Inventory")}
+        >
           <Archive color="#f56565" size={40} />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button}>
-          <List color="#f56565" size={40} />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button}>
-          <Settings color="#f56565" size={40} />
         </TouchableOpacity>
         <TouchableOpacity style={styles.button} onPress={() => handleLogout()}>
           <LogOut color="#f56565" size={40} />

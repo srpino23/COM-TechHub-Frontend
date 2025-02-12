@@ -10,6 +10,7 @@ import Main from "./screens/Main/Main";
 import Details from "./screens/Details/Details";
 import NewReport from "./screens/NewReport/NewReport";
 import Login from "./screens/Login/Login";
+import Inventory from "./screens/Inventory/Inventory";
 
 const Stack = createStackNavigator();
 
@@ -56,6 +57,7 @@ export default function App() {
             </Stack.Screen>
             <Stack.Screen name="Details" component={Details} />
             <Stack.Screen name="NewReport" component={NewReport} />
+            <Stack.Screen name="Inventory" component={Inventory} />
           </Stack.Navigator>
         ) : (
           <Login onLogin={handleLogin} />
