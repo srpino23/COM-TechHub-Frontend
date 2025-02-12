@@ -6,11 +6,18 @@ import {
   Image,
   TextInput,
   Button,
+  FlatList,
 } from "react-native";
 import SubHeader from "../../components/SubHeader/SubHeader";
 import { CameraView, CameraType, useCameraPermissions } from "expo-camera";
 import { useState, useRef } from "react";
-import { Camera, RefreshCcw, X, CheckCircle } from "lucide-react-native";
+import {
+  Camera,
+  RefreshCcw,
+  X,
+  CheckCircle,
+  PlusCircle,
+} from "lucide-react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 
@@ -22,7 +29,7 @@ export default function NewReport({ route }) {
   const [cameraVisible, setCameraVisible] = useState(false);
   const cameraRef = useRef(null);
   const [endTime, setEndTime] = useState(null);
-  const [supplies, setSupplies] = useState("");
+  const [supplies, setSupplies] = useState([]);
   const [summary, setSummary] = useState("");
   const [location, setLocation] = useState("");
   const [changes, setChanges] = useState("");
@@ -58,25 +65,15 @@ export default function NewReport({ route }) {
     }
   }
 
-  async function logUserData() {
-    try {
-      const userData = await AsyncStorage.getItem("user");
-      if (userData !== null) {
-        console.log("User Data:", JSON.parse(userData));
-      } else {
-        console.log("No user data found");
-      }
-    } catch (error) {
-      console.error("Error retrieving user data:", error);
-    }
-  }
-
   async function finishReport() {
     try {
       const formData = new FormData();
       formData.append("id", reportId);
       formData.append("endTime", endTime || new Date().toISOString());
-      formData.append("supplies", supplies);
+      supplies.forEach((supply, index) => {
+        formData.append(`supplies[${index}][name]`, supply.name);
+        formData.append(`supplies[${index}][quantity]`, supply.quantity);
+      });
       formData.append("summary", summary);
       formData.append("location", location);
       formData.append("changes", changes);
@@ -87,7 +84,7 @@ export default function NewReport({ route }) {
         formData.append("image", {
           uri: photo,
           type: blob.type,
-          name: `${reportId}.${blob.type.split('/')[1]}`,
+          name: `${reportId}.${blob.type.split("/")[1]}`,
         });
       }
 
@@ -107,7 +104,10 @@ export default function NewReport({ route }) {
         console.error("Error finishing report:", error.response.data);
       } else if (error.request) {
         // La solicitud fue hecha pero no se recibió respuesta
-        console.error("Error finishing report: No response received", error.request);
+        console.error(
+          "Error finishing report: No response received",
+          error.request
+        );
       } else {
         // Algo sucedió al configurar la solicitud
         console.error("Error finishing report:", error.message);
@@ -115,25 +115,17 @@ export default function NewReport({ route }) {
     }
   }
 
+  function updateSupply(index, key, value) {
+    const updatedSupplies = [...supplies];
+    updatedSupplies[index][key] = value;
+    setSupplies(updatedSupplies);
+  }
+
   return (
     <View style={styles.screen}>
       <SubHeader title={"Nuevo Informe"} />
       <View style={styles.container}>
         <Text style={styles.title}>Informes</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Suministros"
-          placeholderTextColor="#888"
-          value={supplies}
-          onChangeText={setSupplies}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Resumen"
-          placeholderTextColor="#888"
-          value={summary}
-          onChangeText={setSummary}
-        />
         <TextInput
           style={styles.input}
           placeholder="Ubicación"
@@ -148,41 +140,83 @@ export default function NewReport({ route }) {
           value={changes}
           onChangeText={setChanges}
         />
-        {photo && <Image source={{ uri: photo }} style={styles.photo} />}
+        <TextInput
+          style={styles.input}
+          placeholder="Resumen"
+          placeholderTextColor="#888"
+          value={summary}
+          onChangeText={setSummary}
+        />
+        <FlatList
+          data={supplies}
+          keyExtractor={(_, index) => index.toString()}
+          renderItem={({ item, index }) => (
+            <View style={styles.supplyRow}>
+              <TextInput
+                style={styles.input}
+                placeholder="Suministro"
+                placeholderTextColor="#888"
+                value={item.name}
+                onChangeText={(text) => updateSupply(index, "name", text)}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Cantidad"
+                placeholderTextColor="#888"
+                value={item.quantity}
+                keyboardType="numeric"
+                onChangeText={(text) => updateSupply(index, "quantity", text)}
+              />
+            </View>
+          )}
+        />
         <View style={styles.buttonRow}>
-          <TouchableOpacity style={styles.halfButton} onPress={() => setCameraVisible(true)}>
+          <TouchableOpacity
+            style={styles.addButton}
+            onPress={() =>
+              setSupplies([...supplies, { name: "", quantity: "" }])
+            }
+          >
+            <PlusCircle color="white" size={32} />
+            <Text style={styles.addButtonText}>Agregar suministros</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.addButton}
+            onPress={() => setCameraVisible(true)}
+          >
             <Camera color="white" size={32} />
           </TouchableOpacity>
-          {isFormComplete && (
-            <TouchableOpacity style={styles.halfButton} onPress={finishReport}>
-              <CheckCircle color="white" size={32} />
-            </TouchableOpacity>
-          )}
         </View>
-        {cameraVisible && (
-          <View style={styles.fullScreenCamera}>
-            <CameraView ref={cameraRef} style={styles.camera} facing={facing}>
-              <View style={styles.buttonContainer}>
-                <TouchableOpacity
-                  style={styles.button}
-                  onPress={toggleCameraFacing}
-                >
-                  <RefreshCcw color="white" size={32} />
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.button} onPress={takePhoto}>
-                  <Camera color="white" size={32} />
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.button}
-                  onPress={() => setCameraVisible(false)}
-                >
-                  <X color="white" size={32} />
-                </TouchableOpacity>
-              </View>
-            </CameraView>
-          </View>
+        {photo && <Image source={{ uri: photo }} style={styles.photo} />}
+        {isFormComplete && (
+          <TouchableOpacity style={styles.halfButton} onPress={finishReport}>
+            <CheckCircle color="white" size={32} />
+          </TouchableOpacity>
         )}
       </View>
+      {cameraVisible && (
+        <View style={styles.fullScreenCamera}>
+          <CameraView ref={cameraRef} style={styles.camera} facing={facing}>
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={toggleCameraFacing}
+              >
+                <RefreshCcw color="white" size={32} />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.button} onPress={takePhoto}>
+                <Camera color="white" size={32} />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() => setCameraVisible(false)}
+              >
+                <X color="white" size={32} />
+              </TouchableOpacity>
+            </View>
+          </CameraView>
+        </View>
+      )}
     </View>
   );
 }
@@ -203,44 +237,8 @@ const styles = StyleSheet.create({
     fontSize: 24,
     marginBottom: 20,
   },
-  camera: {
-    flex: 1,
-  },
-  buttonContainer: {
-    position: "absolute",
-    bottom: 120,
-    flexDirection: "row",
-    justifyContent: "space-around",
-    width: "100%",
-  },
-  button: {
-    alignItems: "center",
-    padding: 10,
-  },
-  text: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "white",
-  },
-  fullScreenCamera: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: "black",
-  },
-  photo: {
-    width: "100%",
-    height: 300,
-    marginBottom: 20,
-    borderRadius: 10,
-    borderWidth: 2,
-    borderColor: "#fff",
-    backgroundColor: "#222",
-  },
   input: {
-    width: "100%",
+    width: "48%",
     padding: 15,
     marginVertical: 10,
     backgroundColor: "#333",
@@ -248,6 +246,24 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 1,
     borderColor: "#555",
+  },
+  supplyRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+  },
+  addButton: {
+    alignItems: "center",
+    flexDirection: "row",
+    padding: 10,
+    marginVertical: 10,
+    backgroundColor: "#444",
+    borderRadius: 10,
+  },
+  addButtonText: {
+    color: "white",
+    marginLeft: 10,
+    fontSize: 16,
   },
   buttonRow: {
     flexDirection: "row",
@@ -261,5 +277,32 @@ const styles = StyleSheet.create({
     backgroundColor: "#444",
     borderRadius: 10,
     width: "48%",
+  },
+  fullScreenCamera: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  camera: {
+    width: "100%",
+    height: "100%",
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    width: "100%",
+    position: "absolute",
+    bottom: 20,
+  },
+  button: {
+    alignItems: "center",
+    padding: 10,
+    backgroundColor: "#444",
+    borderRadius: 10,
+  },
+  photo: {
+    width: 200,
+    height: 200,
+    marginVertical: 10,
   },
 });

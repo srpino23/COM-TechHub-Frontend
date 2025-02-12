@@ -4,13 +4,13 @@ import Router from "../../components/Router/Router";
 import NavigationBar from "../../components/NavigationBar/NavigationBar";
 import Header from "../../components/Header/Header";
 
-export default function Main() {
+export default function Main({ handleLogout }) {
   const [screen, setScreen] = useState("Home");
 
   return (
     <View style={styles.container}>
       <Header />
-      <Router screen={screen} />
+      <Router screen={screen} handleLogout={handleLogout} />
       <NavigationBar setScreen={setScreen} />
     </View>
   );

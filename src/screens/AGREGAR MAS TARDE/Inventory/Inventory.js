@@ -4,7 +4,7 @@ import { View, Text, StyleSheet } from "react-native";
 export default function Archive() {
   return (
     <View style={styles.screen}>
-      <Text style={styles.text}>Pantalla de Archivo</Text>
+      <Text style={styles.text}>Pantalla de invetario</Text>
     </View>
   );
 }

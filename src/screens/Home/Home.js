@@ -2,79 +2,26 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-nati
 import { User, Clock } from "lucide-react-native";
 import { useState, useEffect } from "react";
 import { useNavigation } from "@react-navigation/native";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 
 export default function Home() {
   const navigation = useNavigation();
   const [remitos, setRemitos] = useState([]);
 
   useEffect(() => {
-    const fetchedRemitos = [
-      {
-        id: 1,
-        change: "Ejemplo 1",
-        team: "Axon",
-        user: "Ejemplo 1",
-        date: "19 Dic, 2025",
-        summary: "Ejemplo 1",
-      },
-      {
-        id: 2,
-        change: "Ejemplo 2",
-        team: "Beta",
-        user: "Ejemplo 2",
-        date: "20 Dic, 2025",
-        summary: "Ejemplo 2",
-      },
-      {
-        id: 3,
-        change: "Ejemplo 2",
-        team: "Beta",
-        user: "Ejemplo 2",
-        date: "20 Dic, 2025",
-        summary: "Ejemplo 2",
-      },
-      {
-        id: 4,
-        change: "Ejemplo 2",
-        team: "Beta",
-        user: "Ejemplo 2",
-        date: "20 Dic, 2025",
-        summary: "Ejemplo 2",
-      },
-      {
-        id: 5,
-        change: "Ejemplo 2",
-        team: "Beta",
-        user: "Ejemplo 2",
-        date: "20 Dic, 2025",
-        summary: "Ejemplo 2",
-      },
-      {
-        id: 6,
-        change: "Ejemplo 2",
-        team: "Beta",
-        user: "Ejemplo 2",
-        date: "20 Dic, 2025",
-        summary: "Ejemplo 2",
-      },
-      {
-        id: 7,
-        change: "Ejemplo 2",
-        team: "Beta",
-        user: "Ejemplo 2",
-        date: "20 Dic, 2025",
-        summary: "Ejemplo 2",
-      },
-      {
-        id: 8,
-        change: "Ejemplo 2",
-        team: "Beta",
-        user: "Ejemplo 2",
-        date: "20 Dic, 2025",
-        summary: "Ejemplo 2",
-      },
-    ];
-    setRemitos(fetchedRemitos);
+    const fetchReports = async () => {
+      try {
+        const user = JSON.parse(await AsyncStorage.getItem('user'));
+        const response = await axios.get('http://172.25.67.77:2300/api/report/getReports');
+        const filteredReports = response.data.filter(report => report.team === user.team);
+        setRemitos(filteredReports);
+      } catch (error) {
+        console.error("Error fetching reports: ", error);
+      }
+    };
+
+    fetchReports();
   }, []);
 
   return (
@@ -82,22 +29,22 @@ export default function Home() {
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         {remitos.map((remito) => (
           <TouchableOpacity
-            key={remito.id}
+            key={remito._id}
             style={styles.card}
-            onPress={() => navigation.navigate("SubScreen")}
+            onPress={() => navigation.navigate("Details", { remito })}
           >
             <View style={styles.infoBox}>
-              <Text style={styles.change}>{remito.change}</Text>
+              <Text style={styles.change}>{remito.changes}</Text>
               <Text style={styles.team}>{remito.team}</Text>
             </View>
             <View style={styles.basicInfoBox}>
               <View style={styles.info}>
                 <User color="#fff" size={24} />
-                <Text style={styles.infoText}>{remito.user}</Text>
+                <Text style={styles.infoText}>{remito.name}</Text>
               </View>
               <View style={styles.info}>
                 <Clock color="#fff" size={24} />
-                <Text style={styles.infoText}>{remito.date}</Text>
+                <Text style={styles.infoText}>{new Date(remito.date).toLocaleString('es-ES', { timeZone: 'UTC', hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' })}</Text>
               </View>
             </View>
             <View style={styles.line}></View>
