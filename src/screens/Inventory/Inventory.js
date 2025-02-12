@@ -3,7 +3,7 @@ import {
   View,
   Text,
   TextInput,
-  Button,
+  TouchableOpacity,
   FlatList,
   StyleSheet,
   Alert,
@@ -18,6 +18,9 @@ export default function Inventory() {
   const [materials, setMaterials] = useState([]);
   const [history, setHistory] = useState([]);
   const [team, setTeam] = useState("");
+  const [filterMaterial, setFilterMaterial] = useState("");
+  const [filterDate, setFilterDate] = useState("");
+  const [filterTeam, setFilterTeam] = useState("");
 
   useEffect(() => {
     const fetchTeam = async () => {
@@ -118,6 +121,21 @@ export default function Inventory() {
     setQuantity("");
   };
 
+  const filteredMaterials = materials.filter((mat) =>
+    mat.name.toLowerCase().includes(filterMaterial.toLowerCase())
+  );
+
+  const filteredHistory = history.filter((entry) => {
+    const matchesMaterial = filterMaterial
+      ? entry.name.toLowerCase().includes(filterMaterial.toLowerCase())
+      : true;
+    const matchesDate = filterDate
+      ? entry.timestamp.includes(filterDate)
+      : true;
+    const matchesTeam = filterTeam ? entry.team === filterTeam : true;
+    return matchesMaterial && matchesDate && matchesTeam;
+  });
+
   return (
     <View style={styles.screen}>
       <SubHeader title={"Inventario"} />
@@ -140,17 +158,31 @@ export default function Inventory() {
           style={styles.input}
         />
         <View style={styles.buttonRow}>
-          <Button title="Ingresar Material" onPress={addMaterial} />
-          <Button
-            title="Retirar Material"
+          <TouchableOpacity
+            title="+"
+            style={[styles.button, { backgroundColor: "#77dd77" }]}
+            onPress={addMaterial}
+          >
+            <Text style={styles.buttonText}>+</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.button, { backgroundColor: "#ff6961" }]}
             onPress={withdrawMaterial}
-            color="orange"
-          />
+          >
+            <Text style={styles.buttonText}>-</Text>
+          </TouchableOpacity>
         </View>
 
         <Text style={styles.subtitle}>Materiales Disponibles</Text>
+        <TextInput
+          placeholder="Filtrar por Nombre"
+          placeholderTextColor="#aaa"
+          value={filterMaterial}
+          onChangeText={setFilterMaterial}
+          style={styles.input}
+        />
         <FlatList
-          data={materials}
+          data={filteredMaterials}
           keyExtractor={(item, index) => index.toString()}
           renderItem={({ item }) => (
             <Text style={styles.listItem}>
@@ -160,8 +192,22 @@ export default function Inventory() {
         />
 
         <Text style={styles.subtitle}>Historial de Movimientos</Text>
+        <TextInput
+          placeholder="Filtrar por Fecha (YYYY-MM-DD)"
+          placeholderTextColor="#aaa"
+          value={filterDate}
+          onChangeText={setFilterDate}
+          style={styles.input}
+        />
+        <TextInput
+          placeholder="Filtrar por Equipo"
+          placeholderTextColor="#aaa"
+          value={filterTeam}
+          onChangeText={setFilterTeam}
+          style={styles.input}
+        />
         <FlatList
-          data={history}
+          data={filteredHistory}
           keyExtractor={(item, index) => index.toString()}
           renderItem={({ item }) => (
             <Text style={styles.historyItem}>
@@ -203,8 +249,20 @@ const styles = StyleSheet.create({
   },
   buttonRow: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "space-around",
     marginVertical: 10,
+  },
+  button: {
+    width: "40%",
+    height: 40,
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 5,
+    backgroundColor: "#5C5C5C",
+  },
+  buttonText: {
+    color: "#ffffff",
+    fontSize: 16,
   },
   subtitle: {
     fontSize: 18,
