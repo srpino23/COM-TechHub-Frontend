@@ -26,7 +26,7 @@ const styles = StyleSheet.create({
     borderBottomStartRadius: 10,
     borderBottomEndRadius: 10,
     boxShadow: "0 0 10px rgba(0, 0, 0, 0.5)",
-    zIndex: 1,
+    zIndex: 2,
     flexDirection: "row",
   },
   headerText: {

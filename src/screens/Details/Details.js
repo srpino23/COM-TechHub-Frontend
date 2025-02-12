@@ -31,9 +31,9 @@ export default function Details() {
     !remito.summary;
 
   return (
-    <View style={{ flex: 1 }}>
-      <ScrollView style={styles.screen}>
-        <SubHeader title={"Detalles"} />
+    <View style={styles.screen}>
+      <SubHeader title={"Detalles"} />
+      <ScrollView>
         <View style={styles.container}>
           <Text style={styles.title}>Detalles del Remito</Text>
           <Image source={{ uri: remito.imageUrl }} style={styles.image} />
@@ -95,10 +95,11 @@ export default function Details() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: "#1E1E1E",
+    backgroundColor: "#121212",
   },
   container: {
     flex: 1,
+    justifyContent: "center",
     alignItems: "center",
     padding: 20,
   },

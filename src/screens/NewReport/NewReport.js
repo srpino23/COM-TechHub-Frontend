@@ -9,7 +9,7 @@ import {
   FlatList,
 } from "react-native";
 import SubHeader from "../../components/SubHeader/SubHeader";
-import { CameraView, CameraType, useCameraPermissions } from "expo-camera";
+import { CameraView, useCameraPermissions } from "expo-camera";
 import { useState, useRef } from "react";
 import {
   Camera,
@@ -18,7 +18,6 @@ import {
   CheckCircle,
   PlusCircle,
 } from "lucide-react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 
 export default function NewReport({ route }) {

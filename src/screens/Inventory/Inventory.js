@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -8,6 +8,9 @@ import {
   StyleSheet,
   Alert,
 } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+import SubHeader from "../../components/SubHeader/SubHeader";
 
 export default function Inventory() {
   const [materialName, setMaterialName] = useState("");
@@ -15,6 +18,19 @@ export default function Inventory() {
   const [materials, setMaterials] = useState([]);
   const [history, setHistory] = useState([]);
   const [team, setTeam] = useState("");
+
+  useEffect(() => {
+    const fetchTeam = async () => {
+      const storedUser = await AsyncStorage.getItem("user");
+      if (storedUser) {
+        const user = JSON.parse(storedUser);
+        if (user.team) {
+          setTeam(user.team);
+        }
+      }
+    };
+    fetchTeam();
+  }, []);
 
   const addMaterial = () => {
     if (
@@ -32,11 +48,11 @@ export default function Inventory() {
 
     setMaterials((prevMaterials) => {
       const existingMaterial = prevMaterials.find(
-        (mat) => mat.name === materialName
+        (mat) => mat.name.toLowerCase() === materialName.toLowerCase()
       );
       if (existingMaterial) {
         return prevMaterials.map((mat) =>
-          mat.name === materialName
+          mat.name.toLowerCase() === materialName.toLowerCase()
             ? { ...mat, quantity: mat.quantity + parseInt(quantity) }
             : mat
         );
@@ -75,7 +91,7 @@ export default function Inventory() {
 
     setMaterials((prevMaterials) => {
       return prevMaterials.map((mat) => {
-        if (mat.name === materialName) {
+        if (mat.name.toLowerCase() === materialName.toLowerCase()) {
           if (mat.quantity >= parseInt(quantity)) {
             return { ...mat, quantity: mat.quantity - parseInt(quantity) };
           } else {
@@ -100,75 +116,74 @@ export default function Inventory() {
 
     setMaterialName("");
     setQuantity("");
-    setTeam("");
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Control de Stock</Text>
+    <View style={styles.screen}>
+      <SubHeader title={"Inventario"} />
+      <View style={styles.container}>
+        <Text style={styles.title}>Control de Stock</Text>
 
-      <TextInput
-        placeholder="Nombre del Material"
-        placeholderTextColor="#aaa"
-        value={materialName}
-        onChangeText={setMaterialName}
-        style={styles.input}
-      />
-      <TextInput
-        placeholder="Cantidad"
-        placeholderTextColor="#aaa"
-        value={quantity}
-        onChangeText={setQuantity}
-        keyboardType="numeric"
-        style={styles.input}
-      />
-      <TextInput
-        placeholder="Equipo (solo para retiros)"
-        placeholderTextColor="#aaa"
-        value={team}
-        onChangeText={setTeam}
-        style={styles.input}
-      />
-      <View style={styles.buttonRow}>
-        <Button title="Ingresar Material" onPress={addMaterial} />
-        <Button
-          title="Retirar Material"
-          onPress={withdrawMaterial}
-          color="orange"
+        <TextInput
+          placeholder="Nombre del Material"
+          placeholderTextColor="#aaa"
+          value={materialName}
+          onChangeText={setMaterialName}
+          style={styles.input}
+        />
+        <TextInput
+          placeholder="Cantidad"
+          placeholderTextColor="#aaa"
+          value={quantity}
+          onChangeText={setQuantity}
+          keyboardType="numeric"
+          style={styles.input}
+        />
+        <View style={styles.buttonRow}>
+          <Button title="Ingresar Material" onPress={addMaterial} />
+          <Button
+            title="Retirar Material"
+            onPress={withdrawMaterial}
+            color="orange"
+          />
+        </View>
+
+        <Text style={styles.subtitle}>Materiales Disponibles</Text>
+        <FlatList
+          data={materials}
+          keyExtractor={(item, index) => index.toString()}
+          renderItem={({ item }) => (
+            <Text style={styles.listItem}>
+              {item.name}: {item.quantity}
+            </Text>
+          )}
+        />
+
+        <Text style={styles.subtitle}>Historial de Movimientos</Text>
+        <FlatList
+          data={history}
+          keyExtractor={(item, index) => index.toString()}
+          renderItem={({ item }) => (
+            <Text style={styles.historyItem}>
+              [{item.timestamp}] {item.action}: {item.name} ({item.quantity}){" "}
+              {item.team ? `-> Equipo: ${item.team}` : ""}
+            </Text>
+          )}
         />
       </View>
-
-      <Text style={styles.subtitle}>Materiales Disponibles</Text>
-      <FlatList
-        data={materials}
-        keyExtractor={(item, index) => index.toString()}
-        renderItem={({ item }) => (
-          <Text style={styles.listItem}>
-            {item.name}: {item.quantity}
-          </Text>
-        )}
-      />
-
-      <Text style={styles.subtitle}>Historial de Movimientos</Text>
-      <FlatList
-        data={history}
-        keyExtractor={(item, index) => index.toString()}
-        renderItem={({ item }) => (
-          <Text style={styles.historyItem}>
-            [{item.timestamp}] {item.action}: {item.name} ({item.quantity}){" "}
-            {item.team ? `-> Equipo: ${item.team}` : ""}
-          </Text>
-        )}
-      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+    backgroundColor: "#121212",
+  },
   container: {
     flex: 1,
+    justifyContent: "center",
     padding: 20,
-    backgroundColor: "#121212",
   },
   title: {
     fontSize: 24,
